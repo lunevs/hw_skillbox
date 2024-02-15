@@ -1,13 +1,11 @@
 package app.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-@Slf4j
 public class InitContactsLoader implements ContactsLoader {
 
     @Value("${custom.init-file.path}")
@@ -28,8 +26,11 @@ public class InitContactsLoader implements ContactsLoader {
                 String[] parsedLine = UtilsService.parseString(c);
                 phoneBookService.add(parsedLine[0], parsedLine[1], parsedLine[2]);
             }
-        } catch (Exception exception) {
-            log.error("Can't read initial Contact data: " + exception.getMessage());
+        } catch (Exception e) {
+            Class<?> tmpObject = new Object() {}.getClass();
+            String className = tmpObject.getName();
+            String methodName = tmpObject.getEnclosingMethod().getName();
+            System.out.println(className + "." + methodName + ": Can't read initial Contact data: " + e.getMessage());
         }
     }
 }

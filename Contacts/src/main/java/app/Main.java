@@ -3,13 +3,11 @@ package app;
 import app.config.AppConfig;
 import app.service.ContactsLoader;
 import app.service.PhoneBookService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Scanner;
 
-@Slf4j
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -34,14 +32,14 @@ public class Main {
                     if (command.length > 1) {
                         phoneBookService.parseAndAdd(command[1]);
                     } else {
-                        log.error("incorrect command, you need to specify arguments");
+                        System.out.println("incorrect command, you need to specify arguments");
                     }
                     break;
                 case "remove":
                     if (command.length > 1) {
                         phoneBookService.remove(command[1]);
                     } else {
-                        log.error("incorrect command, you need to specify arguments");
+                        System.out.println("incorrect command, you need to specify arguments");
                     }
                     break;
                 case "list":
@@ -55,7 +53,7 @@ public class Main {
                     break;
             }
         }
-
+        ((AnnotationConfigApplicationContext) context).close();
     }
 
     private static void printMenu() {

@@ -2,10 +2,10 @@ package app.service;
 
 import app.exceptions.EmailFormatException;
 import app.exceptions.FullNameFormatException;
+import app.exceptions.MissedParametersException;
 import app.exceptions.PhoneNumberFormatException;
 import app.model.Contact;
 import app.model.PhoneBook;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileWriter;
@@ -14,9 +14,7 @@ import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import static app.service.UtilsService.*;
 
-@Slf4j
 public class PhoneBookServiceImpl implements PhoneBookService {
 
     @Value("${custom.dump-file.path}")
@@ -34,7 +32,10 @@ public class PhoneBookServiceImpl implements PhoneBookService {
             Contact addedContact = checkAndCreateContact(fullName, phoneNumber, emailAddress);
             phoneBook.getContactsMap().put(addedContact.getEmail(), addedContact);
         } catch (Exception e) {
-            log.error("Can't add Contact: " + e.getMessage());
+            Class<?> tmpObject = new Object() {}.getClass();
+            String className = tmpObject.getName();
+            String methodName = tmpObject.getEnclosingMethod().getName();
+            System.out.println(className + "." + methodName + ": Can't add Contact: " + e.getMessage());
         }
     }
 
@@ -46,21 +47,28 @@ public class PhoneBookServiceImpl implements PhoneBookService {
     @Override
     public void remove(String emailAddress) {
         try {
-            String email = checkEmail(emailAddress);
+            String email = UtilsService.checkEmail(emailAddress);
             phoneBook.getContactsMap().remove(email);
         } catch (Exception e) {
-            log.error("Can't remove Contact: " + e.getMessage());
+            Class<?> tmpObject = new Object() {}.getClass();
+            String className = tmpObject.getName();
+            String methodName = tmpObject.getEnclosingMethod().getName();
+            System.out.println(className + "." + methodName + ": Can't remove Contact: " + e.getMessage());
         }
     }
 
     @Override
     public void print() {
-        for (Map.Entry<String, Contact> entry : phoneBook.getContactsMap().entrySet()) {
-            System.out.println(
-                    MessageFormat.format("{0} | {1} | {2}",
-                            entry.getValue().getFullName(),
-                            entry.getValue().getPhoneNumber(),
-                            entry.getValue().getEmail()));
+        if (!phoneBook.getContactsMap().isEmpty()) {
+            for (Map.Entry<String, Contact> entry : phoneBook.getContactsMap().entrySet()) {
+                System.out.println(
+                        MessageFormat.format("{0} | {1} | {2}",
+                                entry.getValue().getFullName(),
+                                entry.getValue().getPhoneNumber(),
+                                entry.getValue().getEmail()));
+            }
+        } else  {
+            System.out.println("Contacts list is empty");
         }
     }
 
@@ -74,7 +82,10 @@ public class PhoneBookServiceImpl implements PhoneBookService {
                         entry.getValue().getEmail());
             }
         } catch (IOException e) {
-            log.error("Can't write data to file: " + e.getMessage());
+            Class<?> tmpObject = new Object() {}.getClass();
+            String className = tmpObject.getName();
+            String methodName = tmpObject.getEnclosingMethod().getName();
+            System.out.println(className + "." + methodName + ": Can't write data to file: " + e.getMessage());
         }
     }
 
@@ -82,17 +93,24 @@ public class PhoneBookServiceImpl implements PhoneBookService {
     public void parseAndAdd(String line) {
         try {
             String[] parameters = UtilsService.parseString(line.trim());
-            Contact contact = checkAndCreateContact(parameters[0], parameters[1], parameters[2]);
-            add(contact);
+            if (parameters.length == 3) {
+                Contact contact = checkAndCreateContact(parameters[0], parameters[1], parameters[2]);
+                add(contact);
+            } else {
+                throw new MissedParametersException("Incorrect number of parameters! Expected 3, found: " + parameters.length);
+            }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            Class<?> tmpObject = new Object() {}.getClass();
+            String className = tmpObject.getName();
+            String methodName = tmpObject.getEnclosingMethod().getName();
+            System.out.println(className + "." + methodName + ": Can't parse data: " + e.getMessage());
         }
     }
 
     private Contact checkAndCreateContact(String fullName, String phoneNumber, String emailAddress) throws EmailFormatException, FullNameFormatException, PhoneNumberFormatException {
         return new Contact(
-                checkFullName(fullName.trim()),
-                checkPhoneNumber(phoneNumber.trim()),
-                checkEmail(emailAddress.trim()));
+                UtilsService.checkFullName(fullName.trim()),
+                UtilsService.checkPhoneNumber(phoneNumber.trim()),
+                UtilsService.checkEmail(emailAddress.trim()));
     }
 }

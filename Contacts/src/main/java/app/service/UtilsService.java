@@ -4,10 +4,8 @@ import app.exceptions.EmailFormatException;
 import app.exceptions.FullNameFormatException;
 import app.exceptions.MissedParametersException;
 import app.exceptions.PhoneNumberFormatException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 
-@Slf4j
 public class UtilsService {
 
 

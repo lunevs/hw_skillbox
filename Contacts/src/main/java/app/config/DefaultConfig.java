@@ -13,7 +13,6 @@ public class DefaultConfig {
 
     @Bean
     public ContactsLoader contactsLoader(PhoneBookService phoneBookService) {
-        System.out.println("AppInitConfig DefaultContactsLoader");
         return new DefaultContactsLoader(phoneBookService);
     }
 
